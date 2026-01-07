@@ -14,6 +14,17 @@ export const getSupabaseServerClient = () => {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!serviceRoleKey) {
+    // During build time on Vercel, allow build to proceed with fallback
+    // The actual error will occur at runtime when the function is called
+    if (process.env.VERCEL && process.env.NEXT_PHASE === 'phase-production-build') {
+      // Return a client with anon key during build to allow build to complete
+      return createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder', {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      });
+    }
     throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
   }
   
