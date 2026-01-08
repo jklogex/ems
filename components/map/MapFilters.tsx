@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { MapFilters as MapFiltersType, useMapFilters } from '@/lib/hooks/useMapFilters';
+import { BODEGAS } from '@/lib/constants';
 import { X } from 'lucide-react';
 
 interface MapFiltersProps {
@@ -12,6 +13,9 @@ interface MapFiltersProps {
 }
 
 export function MapFilters({ filters, onFiltersChange }: MapFiltersProps) {
+  // Use hard-coded bodegas from constants
+  const bodegas = BODEGAS as readonly string[];
+
   const handleFilterChange = (key: keyof MapFiltersType, value: string) => {
     onFiltersChange({
       ...filters,
@@ -105,13 +109,18 @@ export function MapFilters({ filters, onFiltersChange }: MapFiltersProps) {
         <div>
           <label className="block text-sm font-medium mb-1">Bodega</label>
           <div className="flex gap-2">
-            <input
-              type="text"
+            <select
               value={filters.warehouse || ''}
               onChange={(e) => handleFilterChange('warehouse', e.target.value)}
-              placeholder="Filtrar por bodega"
               className="flex-1 px-3 py-2 border rounded"
-            />
+            >
+              <option value="">Todas</option>
+              {bodegas.map((bodega) => (
+                <option key={bodega} value={bodega}>
+                  {bodega}
+                </option>
+              ))}
+            </select>
             {filters.warehouse && (
               <Button
                 variant="ghost"

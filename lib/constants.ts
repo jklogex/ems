@@ -105,3 +105,26 @@ export const EQUIPMENT_TYPES = {
   DRAUGHT: 'DRAUGHT',
 } as const;
 
+/**
+ * Hard-coded list of unique bodegas from the equipment table
+ * 
+ * To update this list:
+ * 1. Run: npx tsx scripts/extract-bodegas.ts
+ * 2. Copy the generated array into BODEGAS below
+ */
+export const BODEGAS = [
+  'AMBATO',
+  'AZOGUES',
+  'DURAN/GYE',
+  'EL COCA',
+  'ESMERALDAS',
+  'LA LIBERTAD',
+  'LOJA',
+  'MACHALA',
+  'PORTOVIEJO',
+  'QUEVEDO',
+  'QUITO',
+  'SANTO DOMINGO',
+] as const;
+
+export type Bodega = typeof BODEGAS[number];

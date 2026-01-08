@@ -83,7 +83,7 @@ export default function EquipmentTable({ searchParams }: EquipmentTableProps) {
               Tipo
             </th>
             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-              Región
+              Bodega
             </th>
             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
               Estado
@@ -112,7 +112,7 @@ export default function EquipmentTable({ searchParams }: EquipmentTableProps) {
                 {item.coolers_froster || '-'}
               </td>
               <td className="p-4 align-middle">
-                {item.region_taller || '-'}
+                {item.bodega_nueva || '-'}
               </td>
               <td className="p-4 align-middle">
                 <Badge variant={item.status_neveras ? "default" : "secondary"}>

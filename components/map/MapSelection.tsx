@@ -221,18 +221,29 @@ export function MapSelection({ map, onSelectionChange }: MapSelectionProps) {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      map.off('mousedown', handleMouseDown);
-      map.off('mousemove', handleMouseMove);
-      map.off('mouseup', handleMouseUp);
-      window.removeEventListener('keydown', handleKeyDown);
+      if (!map || !map.loaded()) return;
       
-      // Clean up selection overlay
-      const source = map.getSource(selectionLayerId) as mapboxgl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: 'FeatureCollection',
-          features: [],
-        });
+      try {
+        map.off('mousedown', handleMouseDown);
+        map.off('mousemove', handleMouseMove);
+        map.off('mouseup', handleMouseUp);
+        window.removeEventListener('keydown', handleKeyDown);
+        
+        // Clean up selection overlay
+        try {
+          const source = map.getSource(selectionLayerId) as mapboxgl.GeoJSONSource;
+          if (source) {
+            source.setData({
+              type: 'FeatureCollection',
+              features: [],
+            });
+          }
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
+      } catch (error) {
+        // Ignore errors during cleanup
+        console.warn('Error during MapSelection cleanup:', error);
       }
     };
   }, [map, mode, onSelectionChange]);

@@ -120,12 +120,20 @@ export async function GET(
           hexString = hexString.replace(/\s/g, '');
           
           // Validate hex string (must be even length and only hex chars)
-          if (hexString.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(hexString)) {
-            try {
-              tileData = Buffer.from(hexString, 'hex');
-              parsed = true;
-            } catch (e) {
-              console.error('Error parsing hex string:', e);
+          // Add length check to prevent stack overflow on very long strings
+          if (hexString.length % 2 === 0 && hexString.length > 0 && hexString.length < 10 * 1024 * 1024) {
+            // For very long strings, validate in chunks to avoid stack overflow
+            const isValidHex = hexString.length < 10000 
+              ? /^[0-9a-fA-F]+$/.test(hexString)
+              : /^[0-9a-fA-F]+$/.test(hexString.substring(0, 10000)) && /^[0-9a-fA-F]+$/.test(hexString.substring(hexString.length - 10000));
+            
+            if (isValidHex) {
+              try {
+                tileData = Buffer.from(hexString, 'hex');
+                parsed = true;
+              } catch (e) {
+                console.error('Error parsing hex string:', e);
+              }
             }
           }
         }

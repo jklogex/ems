@@ -71,7 +71,7 @@ export function EquipmentMap({
         map.current.addSource('equipment', {
           type: 'vector',
           tiles: [tileUrl],
-          minzoom: 0,
+          minzoom: 6, // Only show points at zoom level 6 and above to reduce initial load
           maxzoom: 14,
           // Use the feature property `id` as the feature id so we can use feature-state
           promoteId: 'id',
@@ -265,31 +265,199 @@ export function EquipmentMap({
 
     return () => {
       if (map.current) {
-        map.current.remove();
+        try {
+          // Remove all event listeners before removing the map
+          map.current.off();
+          map.current.remove();
+        } catch (error) {
+          // Ignore errors during cleanup
+          console.warn('Error during map cleanup:', error);
+        }
         map.current = null;
       }
     };
   }, [mapboxToken]);
 
+  // Track previous filters to detect changes
+  const prevFiltersRef = useRef<string>('');
+  
   // Update tile source when filters change
   useEffect(() => {
-    if (!map.current || !map.current.isStyleLoaded()) return;
+    // Serialize current filters to compare
+    const currentFiltersStr = JSON.stringify(filters);
+    
+    // Skip if filters haven't actually changed
+    if (prevFiltersRef.current === currentFiltersStr) {
+      return;
+    }
+    
+    // Skip the initial empty filters (first render)
+    const isFirstRender = prevFiltersRef.current === '';
+    prevFiltersRef.current = currentFiltersStr;
+    
+    // Don't update on first render - the initial source already has the right URL
+    if (isFirstRender && Object.keys(filters).length === 0) {
+      console.log('Filter effect: skipping initial empty filters');
+      return;
+    }
 
-    const source = map.current.getSource('equipment') as mapboxgl.VectorTileSource;
-    if (source && 'setTiles' in source) {
+    const updateTileSource = () => {
+      if (!map.current) {
+        console.log('Filter effect: no map');
+        return;
+      }
+
       try {
-        const filterParams = Object.entries(filters)
-          .filter(([_, v]) => v)
-          .map(([k, v]) => `${k}=${encodeURIComponent(v as string)}`)
-          .join('&');
+        // Build filter params using URLSearchParams for proper encoding
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            params.append(key, value);
+          }
+        });
 
-        source.setTiles([
-          `${window.location.origin}/api/map/tiles/{z}/{x}/{y}${filterParams ? `?${filterParams}` : ''}`,
-        ]);
+        const tileUrl = `${window.location.origin}/api/map/tiles/{z}/{x}/{y}${params.toString() ? `?${params.toString()}` : ''}`;
+        
+        console.log('Updating tile source with filters:', filters);
+        console.log('New tile URL:', tileUrl);
+
+        // Remove and re-add source to force complete reload
+        const layersToRemove = ['equipment-points', 'equipment-clusters', 'equipment-cluster-count'];
+        
+        // Remove layers first (must remove before source)
+        layersToRemove.forEach(layerId => {
+          try {
+            if (map.current?.getLayer(layerId)) {
+              map.current.removeLayer(layerId);
+            }
+          } catch (e) {
+            // Ignore errors
+          }
+        });
+        
+        // Remove source
+        try {
+          if (map.current.getSource('equipment')) {
+            map.current.removeSource('equipment');
+          }
+        } catch (e) {
+          // Ignore errors
+        }
+        
+        // Re-add source with new URL
+        map.current.addSource('equipment', {
+          type: 'vector',
+          tiles: [tileUrl],
+          minzoom: 6,
+          maxzoom: 14,
+          promoteId: 'id',
+        });
+        
+        // Re-add point layer
+        map.current.addLayer({
+          id: 'equipment-points',
+          type: 'circle',
+          source: 'equipment',
+          'source-layer': 'equipment',
+          filter: ['!=', ['get', 'cluster'], true],
+          paint: {
+            'circle-color': [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false],
+              '#00ffff',
+              '#ef4444',
+            ],
+            'circle-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              10,
+              3,
+              15,
+              6,
+            ],
+            'circle-stroke-width': [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false],
+              3,
+              0,
+            ],
+            'circle-stroke-color': '#00ffff',
+          },
+        });
+        
+        // Re-add cluster layer
+        map.current.addLayer({
+          id: 'equipment-clusters',
+          type: 'circle',
+          source: 'equipment',
+          'source-layer': 'equipment',
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': [
+              'step',
+              ['get', 'point_count'],
+              '#3b82f6',
+              10,
+              '#22c55e',
+              50,
+              '#fbbf24',
+              100,
+              '#ef4444',
+            ],
+            'circle-radius': [
+              'step',
+              ['get', 'point_count'],
+              20,
+              10,
+              30,
+              50,
+              40,
+              100,
+              50,
+            ],
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#fff',
+          },
+        });
+        
+        // Re-add cluster count layer
+        map.current.addLayer({
+          id: 'equipment-cluster-count',
+          type: 'symbol',
+          source: 'equipment',
+          'source-layer': 'equipment',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+            'text-size': 12,
+          },
+          paint: {
+            'text-color': '#fff',
+          },
+        });
+        
+        console.log('Source and layers recreated successfully');
       } catch (error) {
         console.error('Error updating tile source:', error);
+        
+        // If there was an error, try again after a short delay
+        setTimeout(() => {
+          if (map.current) {
+            console.log('Retrying tile source update...');
+            updateTileSource();
+          }
+        }, 500);
       }
-    }
+    };
+
+    // Run the update - use a small delay to ensure map is ready
+    const timeoutId = setTimeout(updateTileSource, 100);
+    
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [filters]);
 
   // Keep feature-state `selected` in sync with selectedIds for visual styling
@@ -297,9 +465,13 @@ export function EquipmentMap({
     if (!map.current) return;
     if (!map.current.getLayer('equipment-points')) return;
     
+    let cancelled = false;
+    
     // Wait for map to be ready - use requestAnimationFrame to ensure sync happens after map updates
     const syncFeatureState = () => {
-      if (!map.current || !map.current.loaded()) {
+      if (cancelled) return;
+      if (!map.current) return;
+      if (!map.current.loaded()) {
         // Map not ready yet, wait for it
         requestAnimationFrame(syncFeatureState);
         return;
@@ -318,39 +490,54 @@ export function EquipmentMap({
 
         // Clear existing selection state
         rendered.forEach((feature) => {
-          if (feature.id == null) return;
-          m.setFeatureState(
-            {
-              source: 'equipment',
-              sourceLayer: 'equipment',
-              id: feature.id,
-            },
-            { selected: false }
-          );
-        });
-
-        // Apply selection to features whose ids are in selectedIds
-        rendered.forEach((feature) => {
-          if (feature.id == null) return;
-          const fid = String(feature.id);
-          if (ids.includes(fid)) {
+          if (feature.id == null || cancelled) return;
+          try {
             m.setFeatureState(
               {
                 source: 'equipment',
                 sourceLayer: 'equipment',
                 id: feature.id,
               },
-              { selected: true }
+              { selected: false }
             );
+          } catch (e) {
+            // Ignore errors during cleanup
+          }
+        });
+
+        // Apply selection to features whose ids are in selectedIds
+        rendered.forEach((feature) => {
+          if (feature.id == null || cancelled) return;
+          const fid = String(feature.id);
+          if (ids.includes(fid)) {
+            try {
+              m.setFeatureState(
+                {
+                  source: 'equipment',
+                  sourceLayer: 'equipment',
+                  id: feature.id,
+                },
+                { selected: true }
+              );
+            } catch (e) {
+              // Ignore errors during cleanup
+            }
           }
         });
       } catch (error) {
-        console.error('Error syncing feature-state selection:', error);
+        // Silently ignore errors during cleanup/unmount
+        if (!cancelled && map.current && map.current.loaded()) {
+          console.error('Error syncing feature-state selection:', error);
+        }
       }
     };
     
     // Start the sync process
     requestAnimationFrame(syncFeatureState);
+    
+    return () => {
+      cancelled = true;
+    };
   }, [selectedIds]);
 
   return (
