@@ -34,7 +34,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 async function extractBodegas() {
   try {
     console.log('Fetching bodegas from equipment table...');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,

@@ -266,8 +266,7 @@ export function EquipmentMap({
     return () => {
       if (map.current) {
         try {
-          // Remove all event listeners before removing the map
-          map.current.off();
+          // Remove the map (this also removes event listeners)
           map.current.remove();
         } catch (error) {
           // Ignore errors during cleanup
