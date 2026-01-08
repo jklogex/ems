@@ -1,73 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { NextRequest } from 'next/server';
+import { listHandler, createHandler } from '@/lib/api/handlers';
+import { createEquipmentSchema } from '@/lib/validations/equipment';
 import { importEquipmentFromCSV } from '@/lib/utils/import';
+import { successResponse, badRequestResponse } from '@/lib/api/response';
+import { handleApiError } from '@/lib/api/error-handler';
 
 export async function GET(request: NextRequest) {
-  try {
-    const supabase = getSupabaseServerClient();
-    const searchParams = request.nextUrl.searchParams;
-    
-    const placa = searchParams.get('placa');
-    const codigo = searchParams.get('codigo');
-    const region = searchParams.get('region');
-    const status = searchParams.get('status');
-    const type = searchParams.get('type');
-    const warehouse = searchParams.get('warehouse');
-    const limit = parseInt(searchParams.get('limit') || '100');
-    const offset = parseInt(searchParams.get('offset') || '0');
-
-    let query = supabase
-      .from('equipment')
-      .select(`
-        *,
-        clients (
-          id,
-          codigo,
-          nombre_comercial,
-          ciudad,
-          provincia
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (placa) {
-      query = query.ilike('placa', `%${placa}%`);
-    }
-    if (codigo) {
-      query = query.ilike('codigo', `%${codigo}%`);
-    }
-    if (region) {
-      query = query.eq('region_taller', region);
-    }
-    if (status) {
-      query = query.eq('status_neveras', status);
-    }
-    if (type) {
-      query = query.eq('coolers_froster', type);
-    }
-    if (warehouse) {
-      query = query.eq('bodega_nueva', warehouse);
-    }
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({
-      data: data || [],
-      count: count || 0,
-      limit,
-      offset,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  return listHandler(request, {
+    table: 'equipment',
+    select: `
+      *,
+      clients (
+        id,
+        codigo,
+        nombre_comercial,
+        ciudad,
+        provincia
+      )
+    `,
+    allowedFilters: ['placa', 'codigo', 'region', 'status', 'type', 'warehouse'],
+    defaultLimit: 100,
+  });
 }
 
 export async function POST(request: NextRequest) {
@@ -80,7 +33,7 @@ export async function POST(request: NextRequest) {
       const file = formData.get('file') as File;
       
       if (!file) {
-        return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+        return badRequestResponse('No file provided');
       }
 
       const csvContent = await file.text();
@@ -88,29 +41,16 @@ export async function POST(request: NextRequest) {
       
       const result = await importEquipmentFromCSV(csvContent, userId || undefined);
       
-      return NextResponse.json(result);
+      return successResponse(result);
     } else {
       // Handle JSON equipment creation
-      const body = await request.json();
-      const supabase = getSupabaseServerClient();
-
-      const { data, error } = await supabase
-        .from('equipment')
-        .insert(body)
-        .select()
-        .single();
-
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-
-      return NextResponse.json({ data }, { status: 201 });
+      return createHandler(request, {
+        table: 'equipment',
+        schema: createEquipmentSchema,
+      });
     }
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 

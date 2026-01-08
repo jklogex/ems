@@ -89,9 +89,36 @@ export default function WorkOrderForm({ workOrderId, equipmentId, onSave, onCanc
     setError(null);
 
     try {
-      const payload = {
-        ...formData,
+      // Validate required fields
+      if (!formData.equipment_id) {
+        setError('Debe seleccionar un equipo');
+        setLoading(false);
+        return;
+      }
+
+      // Clean payload: convert empty strings to null for UUID fields and optional fields
+      const payload: {
+        type: string;
+        equipment_id: string;
+        priority: string;
+        status: string;
+        sla_hours: number | null;
+        technician_id: string | null;
+        scheduled_date: string | null;
+        diagnosis: string | null;
+        actions_performed: string | null;
+        notes: string | null;
+      } = {
+        type: formData.type,
+        equipment_id: formData.equipment_id,
+        priority: formData.priority,
+        status: formData.status,
         sla_hours: formData.sla_hours ? parseInt(formData.sla_hours) : null,
+        technician_id: formData.technician_id || null,
+        scheduled_date: formData.scheduled_date || null,
+        diagnosis: formData.diagnosis || null,
+        actions_performed: formData.actions_performed || null,
+        notes: formData.notes || null,
       };
 
       const url = workOrderId ? `/api/work-orders/${workOrderId}` : '/api/work-orders';

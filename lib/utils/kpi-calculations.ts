@@ -1,4 +1,4 @@
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 /**
  * Calculate Mean Time To Repair (MTTR)
@@ -7,7 +7,7 @@ export async function calculateMTTR(
   startDate?: string,
   endDate?: string
 ): Promise<number> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServiceClient();
 
   let query = supabase
     .from('work_orders')
@@ -47,7 +47,7 @@ export async function calculateMTBF(
   startDate?: string,
   endDate?: string
 ): Promise<number> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServiceClient();
 
   let query = supabase
     .from('work_orders')
@@ -89,7 +89,7 @@ export async function calculatePreventiveCompliance(
   startDate: string,
   endDate: string
 ): Promise<number> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServiceClient();
 
   // Get all preventive work orders scheduled in the period
   const { data: scheduled, error: scheduledError } = await supabase
@@ -131,7 +131,7 @@ export async function getEquipmentStatus(): Promise<{
   operational: number;
   outOfService: number;
 }> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServiceClient();
 
   const { count: total, error: totalError } = await supabase
     .from('equipment')

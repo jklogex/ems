@@ -44,7 +44,7 @@ export async function openDB(): Promise<IDBDatabase> {
   });
 }
 
-export async function saveWorkOrder(workOrder: any): Promise<void> {
+export async function saveWorkOrder(workOrder: Record<string, unknown>): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['workOrders'], 'readwrite');
@@ -56,7 +56,7 @@ export async function saveWorkOrder(workOrder: any): Promise<void> {
   });
 }
 
-export async function getWorkOrders(): Promise<any[]> {
+export async function getWorkOrders(): Promise<Record<string, unknown>[]> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['workOrders'], 'readonly');
@@ -68,7 +68,7 @@ export async function getWorkOrders(): Promise<any[]> {
   });
 }
 
-export async function getWorkOrder(id: string): Promise<any | null> {
+export async function getWorkOrder(id: string): Promise<Record<string, unknown> | null> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['workOrders'], 'readonly');
@@ -84,7 +84,7 @@ export async function addToSyncQueue(item: {
   type: string;
   url: string;
   method: string;
-  body?: any;
+  body?: Record<string, unknown>;
   timestamp?: number;
 }): Promise<number> {
   const db = await openDB();
@@ -101,7 +101,14 @@ export async function addToSyncQueue(item: {
   });
 }
 
-export async function getSyncQueue(): Promise<any[]> {
+export async function getSyncQueue(): Promise<Array<{
+  id?: number;
+  type: string;
+  url: string;
+  method: string;
+  body?: Record<string, unknown>;
+  timestamp: number;
+}>> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['syncQueue'], 'readonly');

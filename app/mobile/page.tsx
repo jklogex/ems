@@ -6,7 +6,7 @@ import { syncPendingOperations, isOnline, registerOnlineHandler } from '@/lib/of
 import { getWorkOrders, saveWorkOrder } from '@/lib/offline/db';
 
 export default function MobilePage() {
-  const [workOrders, setWorkOrders] = useState<any[]>([]);
+  const [workOrders, setWorkOrders] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [online, setOnline] = useState(true);
   const [syncing, setSyncing] = useState(false);

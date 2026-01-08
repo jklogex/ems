@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
     const searchParams = request.nextUrl.searchParams;
     const date = searchParams.get('date');
 

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
 
     const { data, error } = await supabase
       .from('work_order_parts')
@@ -45,11 +45,11 @@ export async function POST(
 ) {
   try {
     const body = await request.json();
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
 
     const parts = Array.isArray(body) ? body : [body];
 
-    const partsWithWorkOrder = parts.map((item: any) => ({
+    const partsWithWorkOrder = parts.map((item: Record<string, unknown>) => ({
       ...item,
       work_order_id: params.id,
     }));

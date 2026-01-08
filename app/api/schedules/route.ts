@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
     const searchParams = request.nextUrl.searchParams;
     
     const equipmentId = searchParams.get('equipment_id');
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
 
     const { data, error } = await supabase
       .from('schedules')

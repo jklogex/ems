@@ -1,4 +1,4 @@
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 export interface ScheduleConfig {
   equipmentId: string;
@@ -11,7 +11,7 @@ export interface ScheduleConfig {
  * Create or update a preventive maintenance schedule
  */
 export async function createSchedule(config: ScheduleConfig): Promise<string> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServiceClient();
 
   const nextDate = new Date();
   nextDate.setDate(nextDate.getDate() + config.frequencyDays);
@@ -46,7 +46,7 @@ export async function createSchedule(config: ScheduleConfig): Promise<string> {
  * Generate work orders for due preventive maintenance
  */
 export async function generateDueWorkOrders(): Promise<number> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServiceClient();
   const today = new Date().toISOString().split('T')[0];
 
   // Find all schedules that are due
@@ -114,7 +114,7 @@ export async function generateDueWorkOrders(): Promise<number> {
  * Get technician workload (number of assigned work orders)
  */
 export async function getTechnicianWorkload(technicianId: string): Promise<number> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServiceClient();
 
   const { count, error } = await supabase
     .from('work_orders')

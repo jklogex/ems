@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 export async function POST(
   request: NextRequest,
@@ -7,7 +7,7 @@ export async function POST(
 ) {
   try {
     const body = await request.json();
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
 
     const {
       client_id,

@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function MobileWorkOrderPage() {
   const params = useParams();
-  const [workOrder, setWorkOrder] = useState<any>(null);
+  const [workOrder, setWorkOrder] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

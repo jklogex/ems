@@ -1,82 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { NextRequest } from 'next/server';
+import { readHandler, updateHandler, deleteHandler } from '@/lib/api/handlers';
+import { updatePartSchema } from '@/lib/validations/parts';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const supabase = getSupabaseServerClient();
-
-    const { data, error } = await supabase
-      .from('parts')
-      .select('*')
-      .eq('id', params.id)
-      .single();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-
-    return NextResponse.json({ data });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  return readHandler(request, params, {
+    table: 'parts',
+  });
 }
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const body = await request.json();
-    const supabase = getSupabaseServerClient();
-
-    const { data, error } = await supabase
-      .from('parts')
-      .update(body)
-      .eq('id', params.id)
-      .select()
-      .single();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-
-    return NextResponse.json({ data });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  return updateHandler(request, params, {
+    table: 'parts',
+    schema: updatePartSchema,
+  });
 }
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const supabase = getSupabaseServerClient();
-
-    const { error } = await supabase
-      .from('parts')
-      .delete()
-      .eq('id', params.id);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  return deleteHandler(request, params, {
+    table: 'parts',
+  });
 }
 

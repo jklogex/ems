@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { supabase, getSupabaseServerClient } from '@/lib/db/client';
+import { supabase, getSupabaseServiceClient } from '@/lib/db/client';
 import { mapCSVRowToEquipment, mapCSVRowToClient, CSVEquipmentRow } from './csv-mapper';
 import type { Equipment, Client } from '@/lib/db/types';
 
@@ -43,7 +43,7 @@ export async function importEquipmentFromCSV(
     }
 
     result.totalRows = parseResult.data.length;
-    const supabaseClient = getSupabaseServerClient();
+    const supabaseClient = getSupabaseServiceClient();
 
     // Process in batches of 1000
     const batchSize = 1000;

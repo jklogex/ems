@@ -46,7 +46,13 @@ export default function CalendarView({ month = new Date(), technicianId, region 
       const result = await response.json();
 
       if (response.ok) {
-        const calendarEvents: CalendarEvent[] = (result.data || []).map((wo: any) => ({
+        const calendarEvents: CalendarEvent[] = (result.data || []).map((wo: {
+          id: string;
+          scheduled_date?: string;
+          created_at: string;
+          equipment?: { placa: string };
+          type: string;
+        }) => ({
           id: wo.id,
           date: wo.scheduled_date || wo.created_at,
           workOrderId: wo.id,

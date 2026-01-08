@@ -18,7 +18,14 @@ export default function EquipmentPage() {
   const [showImport, setShowImport] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
-  const [importResult, setImportResult] = useState<any>(null);
+  const [importResult, setImportResult] = useState<{
+    success: boolean;
+    totalRows?: number;
+    successful?: number;
+    failed?: number;
+    error?: string;
+    errors?: Array<{ row: number; error: string }>;
+  } | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

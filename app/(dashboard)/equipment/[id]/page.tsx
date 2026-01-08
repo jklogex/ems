@@ -112,7 +112,7 @@ export default function EquipmentDetailPage() {
             <dl className="space-y-3">
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">Cliente</dt>
-                <dd className="mt-1">{(equipment as any).clients?.nombre_comercial || equipment.codigo}</dd>
+                <dd className="mt-1">{(equipment as Equipment & { clients?: { nombre_comercial?: string } }).clients?.nombre_comercial || equipment.codigo}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">Región</dt>

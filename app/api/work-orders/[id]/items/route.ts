@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/db/client';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
 
     const { data, error } = await supabase
       .from('work_order_items')
@@ -33,11 +33,11 @@ export async function POST(
 ) {
   try {
     const body = await request.json();
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
 
     const items = Array.isArray(body) ? body : [body];
 
-    const itemsWithWorkOrder = items.map((item: any) => ({
+    const itemsWithWorkOrder = items.map((item: Record<string, unknown>) => ({
       ...item,
       work_order_id: params.id,
     }));
@@ -66,11 +66,11 @@ export async function PATCH(
 ) {
   try {
     const body = await request.json();
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseServiceClient();
 
     // Update multiple items
     if (Array.isArray(body)) {
-      const updates = body.map((item: any) =>
+      const updates = body.map((item: { id: string; [key: string]: unknown }) =>
         supabase
           .from('work_order_items')
           .update(item)

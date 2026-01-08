@@ -122,8 +122,8 @@ export default function EquipmentLocationHistory({ equipmentId }: EquipmentLocat
                     )}
                   </td>
                   <td className="p-4 align-middle">
-                    {(item as any).clients?.nombre_comercial || 
-                     (item as any).clients?.codigo || 
+                    {(item as EquipmentLocationHistory & { clients?: { nombre_comercial?: string; codigo?: string } }).clients?.nombre_comercial || 
+                     (item as EquipmentLocationHistory & { clients?: { nombre_comercial?: string; codigo?: string } }).clients?.codigo || 
                      '-'}
                   </td>
                   <td className="p-4 align-middle">
@@ -138,7 +138,7 @@ export default function EquipmentLocationHistory({ equipmentId }: EquipmentLocat
                       : '-'}
                   </td>
                   <td className="p-4 align-middle">
-                    {(item as any).users?.name || '-'}
+                    {(item as EquipmentLocationHistory & { users?: { name?: string } }).users?.name || '-'}
                   </td>
                 </tr>
               ))}
