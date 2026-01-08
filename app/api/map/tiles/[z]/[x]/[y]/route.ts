@@ -155,11 +155,9 @@ export async function GET(
     // Return MVT tile with proper headers
     // Note: Do NOT set Content-Encoding: gzip unless the data is actually gzipped
     // MVT tiles from PostGIS are already compressed
-    // Convert to ArrayBuffer for Response compatibility (Uint8Array.buffer is ArrayBuffer)
-    const responseBody: ArrayBuffer = tileData.buffer.slice(
-      tileData.byteOffset,
-      tileData.byteOffset + tileData.byteLength
-    );
+    // Convert to ArrayBuffer for Response compatibility
+    // Create a new ArrayBuffer to avoid SharedArrayBuffer type issues
+    const responseBody = new Uint8Array(tileData).buffer;
     
     return new Response(responseBody, {
       status: 200,
