@@ -24,7 +24,9 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        console.error('Sign in error:', result.error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Sign in error:', result.error);
+        }
         setError('Credenciales inválidas');
       } else if (result?.ok) {
         // Successful login
@@ -35,7 +37,9 @@ export default function SignInPage() {
         setError('Error al iniciar sesión. Por favor, intente nuevamente.');
       }
     } catch (err) {
-      console.error('Sign in exception:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Sign in exception:', err);
+      }
       setError('Error al iniciar sesión');
     } finally {
       setLoading(false);

@@ -29,9 +29,13 @@ if (!supabaseUrl || !serviceRoleKey) {
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 
+// TypeScript now knows these are strings (not undefined) due to the check above
+const SUPABASE_URL: string = supabaseUrl;
+const SERVICE_ROLE_KEY: string = serviceRoleKey;
+
 async function changePassword(email: string, newPassword: string) {
   // Create Supabase client with service role key
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

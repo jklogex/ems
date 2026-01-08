@@ -29,7 +29,9 @@ export const authOptions: NextAuthOptions = {
             .single();
 
           if (error || !user) {
-            console.error('User not found or error:', error);
+            if (process.env.NODE_ENV === 'development') {
+              console.error('User not found or error:', error);
+            }
             return null;
           }
 
@@ -41,13 +43,17 @@ export const authOptions: NextAuthOptions = {
             );
             
             if (!isValidPassword) {
-              console.error('Invalid password for user:', credentials.email);
+              if (process.env.NODE_ENV === 'development') {
+                console.error('Invalid password for user:', credentials.email);
+              }
               return null;
             }
           } else {
             // If no password_hash is set, allow login (for backward compatibility)
             // In production, you should require password_hash for all users
-            console.warn(`User ${user.email} has no password_hash set`);
+            if (process.env.NODE_ENV === 'development') {
+              console.warn(`User ${user.email} has no password_hash set`);
+            }
           }
 
           return {
@@ -58,7 +64,9 @@ export const authOptions: NextAuthOptions = {
             region: user.region,
           };
         } catch (error) {
-          console.error('Authorization error:', error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Authorization error:', error);
+          }
           return null;
         }
       }
