@@ -73,8 +73,9 @@ export async function GET(
 
 
     // Convert the bytea result to Buffer
-    // Supabase RPC returns bytea in different formats depending on the client
-    let tileData: Buffer;
+    // Supabase RPC returns bytea in different formats depending on the client.
+    // Initialize with an empty buffer so TypeScript knows it's always assigned.
+    let tileData: Buffer = Buffer.alloc(0);
     
     if (data === null || data === undefined) {
       console.warn('MVT tile returned null/undefined for tile:', { z, x, y });
