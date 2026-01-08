@@ -10,7 +10,7 @@ export const createPartSchema = z.object({
   descripcion: optionalStringSchema,
   marca: optionalStringSchema,
   modelo: optionalStringSchema,
-  unidad_medida: z.string().default('unidad').max(50).optional(),
+  unidad_medida: z.string().max(50).default('unidad').optional(),
 });
 
 /**

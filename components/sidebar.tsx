@@ -13,6 +13,7 @@ import {
   Smartphone,
   Settings,
 } from 'lucide-react';
+import { ThemeToggle } from './theme-toggle';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -30,7 +31,7 @@ export function Sidebar() {
   return (
     <div className="flex h-full w-64 flex-col border-r bg-card">
       <div className="flex h-16 items-center border-b px-16">
-        <h1 className="text-lg font-bold">LogeX-EMS</h1>
+        <h1 className="text-xl font-bold">LogeX-EMS</h1>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
@@ -53,15 +54,18 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="border-t p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">
-            A
+      <div className="border-t p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">
+              A
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium">Admin</p>
+              <p className="text-xs text-muted-foreground">admin@example.com</p>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium">Admin</p>
-            <p className="text-xs text-muted-foreground">admin@example.com</p>
-          </div>
+          <ThemeToggle />
         </div>
       </div>
     </div>

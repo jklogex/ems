@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     // Inventory table doesn't have created_at, so no default sort
     transform: lowStock
       ? (data) => {
-          return data.filter((item: { quantity: number; min_stock: number }) => 
+          return (data as Array<{ quantity: number; min_stock: number }>).filter((item) => 
             item.quantity <= item.min_stock
           );
         }

@@ -186,14 +186,15 @@ export async function createHandler<T = unknown>(
       insertData = options.transform(validatedData);
     }
 
-    let query = supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query: any = supabase
       .from(options.table)
       .insert(insertData);
 
     if (options.select) {
-      query = query.select(options.select) as typeof query;
+      query = query.select(options.select);
     } else {
-      query = query.select() as typeof query;
+      query = query.select();
     }
 
     const { data, error } = await query.single();
@@ -242,11 +243,17 @@ export async function updateHandler<T = unknown>(
     const body = await request.json();
     
     // Validate input (partial schema)
-    const partialSchema = options.schema.partial();
+    // Check if schema is a ZodObject before calling partial()
+    let partialSchema: z.ZodTypeAny;
+    if (options.schema instanceof z.ZodObject) {
+      partialSchema = options.schema.partial();
+    } else {
+      partialSchema = options.schema;
+    }
     const validationResult = partialSchema.safeParse(body);
     if (!validationResult.success) {
       return badRequestResponse(
-        validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
+        validationResult.error.errors.map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')
       );
     }
 
@@ -259,15 +266,16 @@ export async function updateHandler<T = unknown>(
       updateData = options.transform(validatedData);
     }
 
-    let query = supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query: any = supabase
       .from(options.table)
       .update(updateData)
       .eq(idField, params.id);
 
     if (options.select) {
-      query = query.select(options.select) as typeof query;
+      query = query.select(options.select);
     } else {
-      query = query.select() as typeof query;
+      query = query.select();
     }
 
     const { data, error } = await query.single();

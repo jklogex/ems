@@ -4,9 +4,27 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
+interface WorkOrderEquipment {
+  placa?: string;
+  modelo?: string;
+  latitud?: number;
+  longitud?: number;
+}
+
+interface WorkOrder {
+  id?: string;
+  type?: string;
+  status?: string;
+  priority?: string;
+  diagnosis?: string;
+  actions_performed?: string;
+  equipment?: WorkOrderEquipment;
+  [key: string]: unknown;
+}
+
 export default function MobileWorkOrderPage() {
   const params = useParams();
-  const [workOrder, setWorkOrder] = useState<Record<string, unknown> | null>(null);
+  const [workOrder, setWorkOrder] = useState<WorkOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +44,7 @@ export default function MobileWorkOrderPage() {
         throw new Error(result.error || 'Failed to fetch work order');
       }
 
-      setWorkOrder(result.data);
+      setWorkOrder(result.data as WorkOrder);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -69,17 +87,17 @@ export default function MobileWorkOrderPage() {
         <div className="space-y-4">
           <div className="p-4 bg-white rounded-lg shadow">
             <h2 className="font-semibold mb-2">Información</h2>
-            <p className="text-sm text-gray-600">Tipo: {workOrder.type}</p>
-            <p className="text-sm text-gray-600">Estado: {workOrder.status}</p>
-            <p className="text-sm text-gray-600">Prioridad: {workOrder.priority}</p>
+            <p className="text-sm text-gray-600">Tipo: {String(workOrder.type || '-')}</p>
+            <p className="text-sm text-gray-600">Estado: {String(workOrder.status || '-')}</p>
+            <p className="text-sm text-gray-600">Prioridad: {String(workOrder.priority || '-')}</p>
           </div>
 
           {workOrder.equipment && (
             <div className="p-4 bg-white rounded-lg shadow">
               <h2 className="font-semibold mb-2">Equipo</h2>
-              <p className="text-sm text-gray-600">PLACA: {workOrder.equipment.placa}</p>
-              <p className="text-sm text-gray-600">Modelo: {workOrder.equipment.modelo || '-'}</p>
-              {workOrder.equipment.latitud && workOrder.equipment.longitud && (
+              <p className="text-sm text-gray-600">PLACA: {workOrder.equipment?.placa || '-'}</p>
+              <p className="text-sm text-gray-600">Modelo: {workOrder.equipment?.modelo || '-'}</p>
+              {workOrder.equipment?.latitud && workOrder.equipment?.longitud && (
                 <a
                   href={`https://www.google.com/maps?q=${workOrder.equipment.latitud},${workOrder.equipment.longitud}`}
                   target="_blank"
@@ -95,14 +113,14 @@ export default function MobileWorkOrderPage() {
           {workOrder.diagnosis && (
             <div className="p-4 bg-white rounded-lg shadow">
               <h2 className="font-semibold mb-2">Diagnóstico</h2>
-              <p className="text-sm whitespace-pre-wrap">{workOrder.diagnosis}</p>
+              <p className="text-sm whitespace-pre-wrap">{String(workOrder.diagnosis || '')}</p>
             </div>
           )}
 
           {workOrder.actions_performed && (
             <div className="p-4 bg-white rounded-lg shadow">
               <h2 className="font-semibold mb-2">Acciones Realizadas</h2>
-              <p className="text-sm whitespace-pre-wrap">{workOrder.actions_performed}</p>
+              <p className="text-sm whitespace-pre-wrap">{String(workOrder.actions_performed || '')}</p>
             </div>
           )}
         </div>

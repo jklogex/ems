@@ -137,7 +137,7 @@ export default function EquipmentPage() {
                       <p>Importación exitosa!</p>
                       <p>Total: {importResult.totalRows} filas</p>
                       <p>Exitosas: {importResult.successful}</p>
-                      {importResult.failed > 0 && (
+                      {(importResult.failed ?? 0) > 0 && (
                         <p>Fallidas: {importResult.failed}</p>
                       )}
                     </div>

@@ -22,6 +22,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export async function getSupabaseServerClient() {
   // Dynamically import cookies only in server context
   const { cookies } = await import('next/headers');
+  type ResponseCookie = Parameters<ReturnType<typeof cookies>['set']>[2];
   const cookieStore = cookies();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -29,7 +30,7 @@ export async function getSupabaseServerClient() {
       getAll() {
         return cookieStore.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: Array<{ name: string; value: string; options?: Partial<ResponseCookie> }>) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);

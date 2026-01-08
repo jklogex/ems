@@ -8,20 +8,31 @@ export { mapCSVRowToEquipment, mapCSVRowToClient } from './csv-mapper';
 export type { CSVEquipmentRow } from './csv-mapper';
 
 // Image utilities
-export { compressImage, resizeImage } from './image-compression';
+export { compressImage } from './image-compression';
 
 // KPI calculations
 export {
   calculateMTTR,
+  calculateMTBF,
   calculatePreventiveCompliance,
   getEquipmentStatus,
-  getTechnicianPerformance,
 } from './kpi-calculations';
 
 // Scheduling utilities
 export {
-  generatePreventiveSchedule,
-  getUpcomingMaintenance,
-  updateScheduleAfterWorkOrder,
+  createSchedule,
+  generateDueWorkOrders,
+  getTechnicianWorkload,
 } from './scheduling';
+export type { ScheduleConfig } from './scheduling';
+
+// Format utilities
+export {
+  formatDate,
+  formatRelativeTime,
+  formatCurrency,
+  formatNumber,
+  formatPercentage,
+  formatCoordinates,
+} from './format';
 

@@ -1,5 +1,4 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from './types';
 
 /**
  * Pagination options
@@ -43,7 +42,8 @@ export function applyPagination<T>(
 ) {
   const limit = options.limit ?? options.defaultLimit ?? 100;
   const offset = options.offset ?? 0;
-  return query.range(offset, offset + limit - 1);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (query as any).range(offset, offset + limit - 1);
 }
 
 /**
@@ -53,7 +53,8 @@ export function applyFilters<T>(
   query: ReturnType<SupabaseClient<T>['from']>,
   filters: FilterOptions
 ) {
-  let filteredQuery = query;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let filteredQuery: any = query;
 
   for (const [key, value] of Object.entries(filters)) {
     if (value === null || value === undefined || value === '') {
@@ -63,10 +64,10 @@ export function applyFilters<T>(
     // Handle different filter types
     if (typeof value === 'string') {
       // Use ilike for string searches (case-insensitive partial match)
-      filteredQuery = filteredQuery.ilike(key, `%${value}%`) as typeof filteredQuery;
+      filteredQuery = filteredQuery.ilike(key, `%${value}%`);
     } else if (typeof value === 'number' || typeof value === 'boolean') {
       // Use eq for exact matches
-      filteredQuery = filteredQuery.eq(key, value) as typeof filteredQuery;
+      filteredQuery = filteredQuery.eq(key, value);
     }
   }
 
@@ -80,11 +81,14 @@ export function applySorting<T>(
   query: ReturnType<SupabaseClient<T>['from']>,
   sort?: SortOptions
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const queryAny = query as any;
+  
   if (!sort) {
-    return query.order('created_at', { ascending: false });
+    return queryAny.order('created_at', { ascending: false });
   }
 
-  return query.order(sort.column, { ascending: sort.ascending ?? false });
+  return queryAny.order(sort.column, { ascending: sort.ascending ?? false });
 }
 
 /**
@@ -94,11 +98,12 @@ export function buildQuery<T>(
   query: ReturnType<SupabaseClient<T>['from']>,
   options: QueryOptions = {}
 ) {
-  let builtQuery = query;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let builtQuery: any = query;
 
   // Apply select if specified
   if (options.select) {
-    builtQuery = builtQuery.select(options.select) as typeof builtQuery;
+    builtQuery = builtQuery.select(options.select);
   }
 
   // Apply filters

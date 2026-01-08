@@ -16,7 +16,9 @@ export async function syncPendingOperations(): Promise<{ success: number; failed
       });
 
       if (response.ok) {
-        await removeFromSyncQueue(item.id);
+        if (item.id !== undefined) {
+          await removeFromSyncQueue(item.id);
+        }
         success++;
       } else {
         failed++;
