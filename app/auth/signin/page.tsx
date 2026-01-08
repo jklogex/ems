@@ -24,12 +24,18 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
+        console.error('Sign in error:', result.error);
         setError('Credenciales inválidas');
-      } else {
-        router.push('/');
+      } else if (result?.ok) {
+        // Successful login
+        const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/';
+        router.push(callbackUrl);
         router.refresh();
+      } else {
+        setError('Error al iniciar sesión. Por favor, intente nuevamente.');
       }
     } catch (err) {
+      console.error('Sign in exception:', err);
       setError('Error al iniciar sesión');
     } finally {
       setLoading(false);

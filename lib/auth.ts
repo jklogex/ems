@@ -1,7 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { supabase } from "./db/client";
+import { getSupabaseServiceClient } from "./db/client";
 import type { UserRole } from "./db/types";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,27 +17,50 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // In production, use proper password hashing and verification
-        // For now, this is a placeholder that checks against the database
-        const { data: user, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', credentials.email)
-          .single();
+        try {
+          // Use service role client to bypass RLS for authentication
+          const supabase = getSupabaseServiceClient();
 
-        if (error || !user) {
+          // Get user from database
+          const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', credentials.email)
+            .single();
+
+          if (error || !user) {
+            console.error('User not found or error:', error);
+            return null;
+          }
+
+          // Verify password if password_hash exists
+          if (user.password_hash) {
+            const isValidPassword = await bcrypt.compare(
+              credentials.password,
+              user.password_hash
+            );
+            
+            if (!isValidPassword) {
+              console.error('Invalid password for user:', credentials.email);
+              return null;
+            }
+          } else {
+            // If no password_hash is set, allow login (for backward compatibility)
+            // In production, you should require password_hash for all users
+            console.warn(`User ${user.email} has no password_hash set`);
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role as UserRole,
+            region: user.region,
+          };
+        } catch (error) {
+          console.error('Authorization error:', error);
           return null;
         }
-
-        // TODO: Implement proper password verification
-        // For now, accept any password if user exists
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role as UserRole,
-          region: user.region,
-        };
       }
     })
   ],
