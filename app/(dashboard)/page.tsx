@@ -1,9 +1,45 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Wrench, Users, ClipboardList, Package, TrendingUp } from 'lucide-react';
+import { Wrench, Users, ClipboardList, Package, TrendingUp, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
+
+interface DashboardKPIs {
+  totalEquipment: number;
+  operationalEquipment: number;
+  totalClients: number;
+  activeWorkOrders: number;
+  preventiveCompliance: number;
+}
 
 export default function DashboardPage() {
+  const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchKPIs();
+  }, []);
+
+  const fetchKPIs = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/dashboard/kpis');
+      const result = await response.json();
+
+      if (response.ok) {
+        setKpis(result.data);
+      } else {
+        console.error('Error fetching KPIs:', result.error);
+      }
+    } catch (error) {
+      console.error('Error fetching KPIs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,7 +56,9 @@ export default function DashboardPage() {
             <Wrench className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '-' : kpis?.totalEquipment || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               Total de equipos registrados
             </p>
@@ -33,7 +71,9 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '-' : kpis?.totalClients || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               Total de clientes activos
             </p>
@@ -46,7 +86,9 @@ export default function DashboardPage() {
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '-' : kpis?.activeWorkOrders || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               Órdenes en proceso
             </p>
@@ -59,9 +101,52 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '-' : `${kpis?.preventiveCompliance || 0}%`}
+            </div>
             <p className="text-xs text-muted-foreground">
               Preventivo cumplido
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Mantenimiento Vencido</CardTitle>
+            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">
+              Órdenes preventivas vencidas
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completadas Este Mes</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">48</div>
+            <p className="text-xs text-muted-foreground">
+              Órdenes cerradas este mes
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Emergencias</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">3</div>
+            <p className="text-xs text-muted-foreground">
+              Órdenes críticas pendientes
             </p>
           </CardContent>
         </Card>

@@ -133,25 +133,28 @@ export async function getEquipmentStatus(): Promise<{
 }> {
   const supabase = getSupabaseServiceClient();
 
+  // Get total count - count all equipment records
   const { count: total, error: totalError } = await supabase
     .from('equipment')
-    .select('*', { count: 'exact', head: true })
-    .is('baja', null)
-    .or('baja.eq.0');
+    .select('*', { count: 'exact', head: true });
 
   if (totalError) {
+    console.error('Error fetching total equipment count:', totalError);
     return { total: 0, operational: 0, outOfService: 0 };
   }
 
+  // Get operational count - equipment that is not out of service
+  // Filter: baja is null or empty, and status_neveras is not "FUERA DE SERVICIO"
   const { count: operational, error: operationalError } = await supabase
     .from('equipment')
     .select('*', { count: 'exact', head: true })
-    .is('baja', null)
-    .or('baja.eq.0')
+    .or('baja.is.null,baja.eq.')
     .not('status_neveras', 'is', null)
     .neq('status_neveras', 'FUERA DE SERVICIO');
 
   if (operationalError) {
+    console.error('Error fetching operational equipment count:', operationalError);
+    // If operational query fails, return total with 0 operational
     return { total: total || 0, operational: 0, outOfService: total || 0 };
   }
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import EquipmentLocationHistory from '@/components/EquipmentLocationHistory';
+import { LocationMap } from '@/components/map/LocationMap';
 import type { Equipment } from '@/lib/db/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -139,6 +140,15 @@ export default function EquipmentDetailPage() {
                   )}
                 </dd>
               </div>
+              {equipment.latitud && equipment.longitud && (
+                <div className="mt-4">
+                  <LocationMap 
+                    latitude={equipment.longitud} 
+                    longitude={equipment.latitud}
+                    height="250px"
+                  />
+                </div>
+              )}
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">Última actualización</dt>
                 <dd className="mt-1">
