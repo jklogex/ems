@@ -109,39 +109,46 @@ export default function MobilePage() {
               No hay órdenes de trabajo asignadas
             </div>
           ) : (
-            workOrders.map((wo) => (
-              <Link
-                key={String(wo.id)}
-                href={`/mobile/work-orders/${String(wo.id)}`}
-                className="block p-4 bg-white rounded-lg shadow border border-gray-200"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-semibold text-lg">
-                      {wo.equipment?.placa || 'Sin equipo'}
-                    </h3>
-                    <p className="text-sm text-gray-600">{wo.type}</p>
+            workOrders.map((wo) => {
+              const equipment = wo.equipment as { placa?: string; clients?: { nombre_comercial?: string; codigo?: string } } | undefined;
+              const type = wo.type as string | undefined;
+              const status = wo.status as string | undefined;
+              const scheduledDate = wo.scheduled_date as string | undefined;
+              
+              return (
+                <Link
+                  key={String(wo.id)}
+                  href={`/mobile/work-orders/${String(wo.id)}`}
+                  className="block p-4 bg-white rounded-lg shadow border border-gray-200"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="font-semibold text-lg">
+                        {equipment?.placa || 'Sin equipo'}
+                      </h3>
+                      <p className="text-sm text-gray-600">{type || ''}</p>
+                    </div>
+                    <span className={`px-2 py-1 text-xs rounded ${
+                      status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                      status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {status || ''}
+                    </span>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded ${
-                    wo.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                    wo.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {wo.status}
-                  </span>
-                </div>
-                {wo.equipment?.clients && (
-                  <p className="text-sm text-gray-500">
-                    {wo.equipment.clients.nombre_comercial || wo.equipment.clients.codigo}
-                  </p>
-                )}
-                {wo.scheduled_date && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    {new Date(wo.scheduled_date).toLocaleDateString('es-ES')}
-                  </p>
-                )}
-              </Link>
-            ))
+                  {equipment?.clients && (
+                    <p className="text-sm text-gray-500">
+                      {equipment.clients.nombre_comercial || equipment.clients.codigo || ''}
+                    </p>
+                  )}
+                  {scheduledDate && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      {new Date(scheduledDate).toLocaleDateString('es-ES')}
+                    </p>
+                  )}
+                </Link>
+              );
+            })
           )}
         </div>
       </div>
