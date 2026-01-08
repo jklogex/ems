@@ -62,7 +62,7 @@ export async function GET(
       console.error('MVT tile generation error:', error);
       console.error('Tile coordinates:', { z, x, y });
       // If function doesn't exist, return empty tile
-      return new Response(new Uint8Array(0), {
+      return new Response(new ArrayBuffer(0), {
         status: 200,
         headers: {
           'Content-Type': 'application/vnd.mapbox-vector-tile',
@@ -155,8 +155,13 @@ export async function GET(
     // Return MVT tile with proper headers
     // Note: Do NOT set Content-Encoding: gzip unless the data is actually gzipped
     // MVT tiles from PostGIS are already compressed
-    // Use Response instead of NextResponse for binary data to avoid type issues
-    return new Response(tileData, {
+    // Convert to ArrayBuffer for Response compatibility (Uint8Array.buffer is ArrayBuffer)
+    const responseBody: ArrayBuffer = tileData.buffer.slice(
+      tileData.byteOffset,
+      tileData.byteOffset + tileData.byteLength
+    );
+    
+    return new Response(responseBody, {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.mapbox-vector-tile',
@@ -167,7 +172,7 @@ export async function GET(
   } catch (error) {
     console.error('Error in MVT tile endpoint:', error);
     // Return empty tile on error (better UX than error page)
-    return new Response(new Uint8Array(0), {
+    return new Response(new ArrayBuffer(0), {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.mapbox-vector-tile',
