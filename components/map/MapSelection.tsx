@@ -165,7 +165,7 @@ export function MapSelection({ map, onSelectionChange }: MapSelectionProps) {
 
         // Get all visible features
         const bounds = map.getBounds();
-        const features = map.queryRenderedFeatures(undefined, {
+        const features = map.queryRenderedFeatures({
           layers: ['equipment-points'],
         });
 

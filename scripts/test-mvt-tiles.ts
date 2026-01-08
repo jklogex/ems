@@ -122,7 +122,13 @@ async function testTiles() {
 
   // Check equipment distribution
   console.log('\n\nChecking equipment distribution:');
-  const { data: bounds } = await supabase.rpc('get_equipment_bounds', {}).catch(() => ({ data: null }));
+  let bounds = null;
+  try {
+    const result = await supabase.rpc('get_equipment_bounds', {});
+    bounds = result.data;
+  } catch (error) {
+    // Function might not exist
+  }
   
   if (bounds) {
     console.log('Equipment bounds:', bounds);

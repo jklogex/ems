@@ -27,14 +27,20 @@ export function RouteLayer({ map, route }: RouteLayerProps) {
         type: 'geojson',
         data: {
           type: 'Feature',
-          geometry: route.geometry,
+          geometry: {
+            type: 'LineString',
+            coordinates: route.geometry.coordinates,
+          },
           properties: {},
         },
       });
     } else {
       (map.getSource(routeSourceId) as mapboxgl.GeoJSONSource).setData({
         type: 'Feature',
-        geometry: route.geometry,
+        geometry: {
+          type: 'LineString',
+          coordinates: route.geometry.coordinates,
+        },
         properties: {},
       });
     }

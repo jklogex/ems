@@ -51,7 +51,7 @@ export function withAuth<T extends (...args: any[]) => Promise<NextResponse>>(
     }
 
     // Add session to request context (pass as first argument after request)
-    return handler(request, session, ...args);
+    return (handler as any)(request, session, ...args);
   };
 }
 

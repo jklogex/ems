@@ -52,6 +52,7 @@ export default function CalendarView({ month = new Date(), technicianId, region 
           created_at: string;
           equipment?: { placa: string };
           type: string;
+          technician?: { name: string };
         }) => ({
           id: wo.id,
           date: wo.scheduled_date || wo.created_at,

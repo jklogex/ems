@@ -91,7 +91,7 @@ export function EquipmentMap({
 
         // Listen for tile loading events
         map.current.on('data', (e) => {
-          if (e.sourceId === 'equipment') {
+          if ('sourceId' in e && e.sourceId === 'equipment') {
             // no-op; kept for potential future debugging
           }
         });
@@ -210,7 +210,7 @@ export function EquipmentMap({
 
         const source = map.current.getSource('equipment') as mapboxgl.VectorTileSource;
         if (source && 'getClusterExpansionZoom' in source) {
-          source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+          (source as any).getClusterExpansionZoom(clusterId, (err: Error | null, zoom: number | undefined) => {
             if (err || !map.current) return;
 
             map.current.easeTo({
@@ -311,7 +311,8 @@ export function EquipmentMap({
       try {
         // For simplicity, clear selection state on all currently rendered features,
         // then apply selection to the ones in selectedIds.
-        const rendered = m.queryRenderedFeatures(undefined, {
+        // Query all rendered features in the viewport
+        const rendered = m.queryRenderedFeatures({
           layers: ['equipment-points'],
         });
 
