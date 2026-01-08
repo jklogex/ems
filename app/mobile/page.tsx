@@ -111,8 +111,8 @@ export default function MobilePage() {
           ) : (
             workOrders.map((wo) => (
               <Link
-                key={wo.id}
-                href={`/mobile/work-orders/${wo.id}`}
+                key={String(wo.id)}
+                href={`/mobile/work-orders/${String(wo.id)}`}
                 className="block p-4 bg-white rounded-lg shadow border border-gray-200"
               >
                 <div className="flex justify-between items-start mb-2">
