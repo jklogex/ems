@@ -17,9 +17,9 @@
 
 1. In your Supabase project dashboard, go to **Settings** → **API**
 2. Copy these values:
-   - **Project URL** (`https://abfqicrehnxawdhqcbdw.supabase.co`)
-   - **anon/public key** (`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiZnFpY3JlaG54YXdkaHFjYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjQ3MzYsImV4cCI6MjA4MzMwMDczNn0.GhrHHDvDR2XEHuqZUfSOMc7OPuT7tg7a11GEdRmfEWQ`)
-   - **service_role key** (`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiZnFpY3JlaG54YXdkaHFjYmR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNDczNiwiZXhwIjoyMDgzMzAwNzM2fQ.vck41k0OBoDAgjvKDcY9FMeC4npSBIMR0m1CYZYzlIE`)
+   - **Project URL** 
+   - **anon/public key** 
+   - **service_role key** 
 
 3. Go to **Settings** → **Database**
 4. Find **Connection string** section
