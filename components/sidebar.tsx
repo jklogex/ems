@@ -11,10 +11,11 @@ import {
   Package,
   BarChart3,
   Smartphone,
-  Settings,
   Map,
+  UserCog,
 } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
+import { UserMenu } from './UserMenu';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -24,6 +25,7 @@ const navigation = [
   { name: 'Inventario', href: '/inventory', icon: Package },
   { name: 'Mapa', href: '/map', icon: Map },
   { name: 'Reportes', href: '/reports', icon: BarChart3 },
+  { name: 'Usuarios', href: '/users', icon: UserCog },
   { name: 'Móvil', href: '/mobile', icon: Smartphone },
 ];
 
@@ -57,15 +59,9 @@ export function Sidebar() {
         })}
       </nav>
       <div className="border-t p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">
-              A
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Admin</p>
-              <p className="text-xs text-muted-foreground">admin@example.com</p>
-            </div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <UserMenu />
           </div>
           <ThemeToggle />
         </div>
