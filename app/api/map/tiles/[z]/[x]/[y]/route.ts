@@ -72,23 +72,22 @@ export async function GET(
     }
 
 
-    // Convert the bytea result to Buffer
-    // Supabase RPC returns bytea in different formats depending on the client.
-    // Initialize with an empty buffer so TypeScript knows it's always assigned.
-    let tileData: Buffer = Buffer.alloc(0);
+    // Convert the bytea result to a Uint8Array (Buffer is a Uint8Array subclass)
+    // Initialize with an empty array so TypeScript knows it's always assigned.
+    let tileData: Uint8Array = new Uint8Array(0);
     
     if (data === null || data === undefined) {
       console.warn('MVT tile returned null/undefined for tile:', { z, x, y });
-      tileData = Buffer.alloc(0);
+      tileData = new Uint8Array(0);
     } else if (typeof data === 'string') {
       // Supabase may return bytea in different formats:
       // 1. Hex string with \x prefix: "\\x[hex]"
       // 2. Base64 encoded (common with JS clients)
       // 3. Raw hex without prefix
       
-      if (data === '\\x' || data.length <= 2) {
+        if (data === '\\x' || data.length <= 2) {
         // Empty tile
-        tileData = Buffer.alloc(0);
+        tileData = new Uint8Array(0);
       } else {
         // Try base64 first (Supabase JS client often uses this)
         let parsed = false;
@@ -133,7 +132,7 @@ export async function GET(
         
         if (!parsed) {
           console.error(`Tile ${z}/${x}/${y}: Could not parse data. Type: ${typeof data}, Length: ${data.length}, Preview: ${data.substring(0, 50)}`);
-          tileData = Buffer.alloc(0);
+          tileData = new Uint8Array(0);
         }
       }
     } else if (Buffer.isBuffer(data)) {
@@ -145,7 +144,7 @@ export async function GET(
       tileData = Buffer.from(data);
     } else {
       console.warn('Unexpected data type from RPC:', typeof data, 'Data:', data);
-      tileData = Buffer.alloc(0);
+      tileData = new Uint8Array(0);
     }
 
     // Log tile size for debugging (only in development)
