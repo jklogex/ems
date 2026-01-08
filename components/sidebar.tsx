@@ -12,6 +12,7 @@ import {
   BarChart3,
   Smartphone,
   Settings,
+  Map,
 } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Clientes', href: '/clients', icon: Users },
   { name: 'Órdenes de Trabajo', href: '/work-orders', icon: ClipboardList },
   { name: 'Inventario', href: '/inventory', icon: Package },
+  { name: 'Mapa', href: '/map', icon: Map },
   { name: 'Reportes', href: '/reports', icon: BarChart3 },
   { name: 'Móvil', href: '/mobile', icon: Smartphone },
 ];

@@ -1,26 +1,68 @@
 import { NextRequest } from 'next/server';
-import { listHandler, createHandler } from '@/lib/api/handlers';
+import { createHandler } from '@/lib/api/handlers';
 import { createEquipmentSchema } from '@/lib/validations/equipment';
 import { importEquipmentFromCSV } from '@/lib/utils/import';
-import { successResponse, badRequestResponse } from '@/lib/api/response';
+import { successResponse, badRequestResponse, paginatedResponse } from '@/lib/api/response';
 import { handleApiError } from '@/lib/api/error-handler';
+import { getSupabaseServiceClient } from '@/lib/db/client';
 
 export async function GET(request: NextRequest) {
-  return listHandler(request, {
-    table: 'equipment',
-    select: `
-      *,
-      clients (
-        id,
-        codigo,
-        nombre_comercial,
-        ciudad,
-        provincia
-      )
-    `,
-    allowedFilters: ['placa', 'codigo', 'region', 'status', 'type', 'warehouse'],
-    defaultLimit: 100,
-  });
+  try {
+    const supabase = getSupabaseServiceClient();
+    const searchParams = request.nextUrl.searchParams;
+
+    // Map filter names to actual database column names
+    const filterMapping: Record<string, string> = {
+      placa: 'placa',
+      codigo: 'codigo',
+      region: 'region_taller',
+      status: 'status_neveras',
+      type: 'coolers_froster',
+      warehouse: 'bodega_nueva',
+    };
+
+    // Build query with filters
+    let query = supabase
+      .from('equipment')
+      .select(`
+        *,
+        clients (
+          id,
+          codigo,
+          nombre_comercial,
+          ciudad,
+          provincia
+        )
+      `, { count: 'exact' });
+
+    // Apply filters with proper column mapping
+    for (const [filterKey, dbColumn] of Object.entries(filterMapping)) {
+      const value = searchParams.get(filterKey);
+      if (value && value.trim() !== '') {
+        query = query.ilike(dbColumn, `%${value}%`);
+      }
+    }
+
+    // Apply pagination
+    const limit = parseInt(searchParams.get('limit') || '100', 10);
+    const offset = parseInt(searchParams.get('offset') || '0', 10);
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      return handleApiError(error);
+    }
+
+    return paginatedResponse(data || [], {
+      count: data?.length || 0,
+      limit,
+      offset,
+      total: count || 0,
+    });
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
 
 export async function POST(request: NextRequest) {
